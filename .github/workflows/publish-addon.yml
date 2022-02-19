@@ -65,5 +65,5 @@ jobs:
         run: terraform init
 
       - name: Terraform Apply
-        run: terraform apply -auto-approve
+        run: terraform apply -auto-approve -var addon-name=${{ inputs.ADDON_NAME }} -var addon-version=1.0.${GITHUB_RUN_NUMBER}
   
