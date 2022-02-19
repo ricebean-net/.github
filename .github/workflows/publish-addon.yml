@@ -58,10 +58,10 @@ jobs:
       - name: Push Image to Google Container Registry
         run: docker push "gcr.io/${{ inputs.GCP_PROJECT_ID }}/${{ inputs.ADDON_NAME }}:1.0.${GITHUB_RUN_NUMBER}"
 
-      - name: Deploy to Cloud Run
-        run: |-
-          gcloud run deploy ${{ inputs.ADDON_NAME }} \
-            --region ${{ inputs.GCP_REGION }} \
-            --image "gcr.io/${{ inputs.GCP_PROJECT_ID }}/${{ inputs.ADDON_NAME }}:1.0.${GITHUB_RUN_NUMBER}" \
-            --platform "managed" \
-            --allow-unauthenticated
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v1  
+
+      - name: Terraform Apply
+        run: terraform apply -auto-aprove
+        env:
+          GOOGLE_CREDENTIALS: ${{ secrets.GCP_SA_KEY }}
