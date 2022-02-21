@@ -29,6 +29,13 @@ jobs:
       - name: Check out sources...
         uses: actions/checkout@v2
 
+      - name: Cache Gradle packages
+        uses: actions/cache@v2
+        with:
+          path: |
+            ~/.gradle/caches
+            ~/.gradle/wrapper
+
       - name: Setup GCloud CLI
         uses: google-github-actions/setup-gcloud@v0
         with:
@@ -43,6 +50,7 @@ jobs:
         run: |-
           docker build \
             -t "europe-west1-docker.pkg.dev/${{ inputs.GCP_PROJECT_ID }}/ricebean-net/${{ inputs.ADDON_NAME }}:1.0.${GITHUB_RUN_NUMBER}" \
+            -v ~/.gradle:/root/.gradle \
             --build-arg VERSION=1.0.${GITHUB_RUN_NUMBER} \
             --build-arg GITHUB_SHA=${GITHUB_SHA} \
             --build-arg GITHUB_SHORT_SHA=${GITHUB_SHA:0:8} \
