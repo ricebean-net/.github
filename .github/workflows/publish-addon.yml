@@ -33,8 +33,8 @@ jobs:
         uses: actions/cache@v2
         with:
           path: |
-            ~/.gradle/caches
-            ~/.gradle/wrapper
+            ~/.gradle
+          key: gradle-cache
 
       - name: Setup GCloud CLI
         uses: google-github-actions/setup-gcloud@v0
