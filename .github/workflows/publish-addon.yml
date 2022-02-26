@@ -25,6 +25,8 @@ defaults:
 jobs:
   publish:
     runs-on: ubuntu-latest
+    env: 
+      TF_WORKSPACE: ${{ inputs.ADDON_NAME }}
     steps:
       - name: Check out sources...
         uses: actions/checkout@v2
