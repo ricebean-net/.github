@@ -60,7 +60,7 @@ jobs:
           cli_config_credentials_token: ${{ secrets.TERRAFORM_API_TOKEN }}
           
       - name: Set Terraform Workflow
-        run: sed 's/[WORKSPACE]/${{ inputs.ADDON_NAME }}/g' main.tf
+        run: sed -i 's/[WORKSPACE]/${{ inputs.ADDON_NAME }}/g' main.tf
 
       - name: Terraform Init
         id: init
