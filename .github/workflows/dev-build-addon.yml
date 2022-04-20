@@ -7,6 +7,11 @@ on:
         description: The AddOns Name.
         required: true
         type: string
+      GCP_PROJECT_ID:
+        description: The GCP Project ID.
+        required: false
+        type: string
+        default: 'rb-net'
     secrets:
       GCP_SA_KEY:
         required: true
