@@ -58,6 +58,9 @@ jobs:
         uses: hashicorp/setup-terraform@v1  
         with:
           cli_config_credentials_token: ${{ secrets.TERRAFORM_API_TOKEN }}
+          
+      - name: Set Terraform Workflow
+        run: sed -i 's/\[WORKSPACE_NAME\]/${{ inputs.ADDON_NAME }}/g' main.tf
 
       - name: Terraform Init
         id: init
