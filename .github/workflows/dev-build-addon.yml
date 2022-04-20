@@ -13,7 +13,7 @@ defaults:
     shell: bash
 
 jobs:
-  build:
+  dev-build:
     runs-on: ubuntu-latest
     steps:
       - name: Check out sources...
@@ -22,7 +22,7 @@ jobs:
       - name: Build Docker Image
         run: |-
           docker build \
-            -t "{{ inputs.ADDON_NAME }}:latest" \
+            -t "${{ inputs.ADDON_NAME }}:latest" \
             --build-arg VERSION=1.0.${GITHUB_RUN_NUMBER} \
             --build-arg GITHUB_SHA=${GITHUB_SHA} \
             --build-arg GITHUB_SHORT_SHA=${GITHUB_SHA:0:8} \
