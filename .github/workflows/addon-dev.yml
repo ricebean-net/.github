@@ -1,4 +1,4 @@
-name: Build Atlassian AddOn (DEV)
+name: Atlasian AddOn Dev Branch Action
 
 on:
   workflow_call:
