@@ -1,4 +1,4 @@
-name: Atlassian AddOn DEV-Branch Action
+name: Atlassian AddOn MAIN-Branch Action
 
 on:
   workflow_call:
@@ -15,13 +15,15 @@ on:
     secrets:
       GCP_SA_KEY:
         required: true
+      TERRAFORM_API_TOKEN:
+        required: true
 
 defaults:
   run:
     shell: bash
 
 jobs:
-  build:
+  publish:
     runs-on: ubuntu-latest
     steps:
       - name: Check out sources...
@@ -40,9 +42,8 @@ jobs:
       - name: Build Docker Image
         run: |-
           docker build \
-            -t "europe-west1-docker.pkg.dev/${{ inputs.GCP_PROJECT_ID }}/dev/${{ inputs.ADDON_NAME }}:latest" \
-            -t "europe-west1-docker.pkg.dev/${{ inputs.GCP_PROJECT_ID }}/dev/${{ inputs.ADDON_NAME }}:0.0.${GITHUB_RUN_NUMBER}" \
-            --build-arg VERSION=0.0.${GITHUB_RUN_NUMBER} \
+            -t "europe-west1-docker.pkg.dev/${{ inputs.GCP_PROJECT_ID }}/main/${{ inputs.ADDON_NAME }}:1.0.${GITHUB_RUN_NUMBER}" \
+            --build-arg VERSION=1.0.${GITHUB_RUN_NUMBER} \
             --build-arg GITHUB_SHA=${GITHUB_SHA} \
             --build-arg GITHUB_SHORT_SHA=${GITHUB_SHA:0:8} \
             --build-arg GITHUB_RUN_ID=${GITHUB_RUN_ID} \
@@ -50,10 +51,22 @@ jobs:
             --build-arg GITHUB_ACTOR=${GITHUB_ACTOR} \
             .
 
-      - name: CleanUp DEV Docker Repo
-        run: gcloud -q artifacts docker images delete europe-west1-docker.pkg.dev/${{ inputs.GCP_PROJECT_ID }}/dev/${{ inputs.ADDON_NAME }}
+      - name: Push Image to Google Container Registry
+        run: docker push "europe-west1-docker.pkg.dev/${{ inputs.GCP_PROJECT_ID }}/main/${{ inputs.ADDON_NAME }}:1.0.${GITHUB_RUN_NUMBER}"
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v1  
+        with:
+          cli_config_credentials_token: ${{ secrets.TERRAFORM_API_TOKEN }}
+          
+      - name: Set Terraform Workflow
+        run: sed -i 's/\[WORKSPACE_NAME\]/${{ inputs.ADDON_NAME }}/g' main.tf
+
+      - name: Terraform Init
+        id: init
+        run: terraform init
         continue-on-error: true
-        
-      - name: Push Image to DEV Docker Repo
-        run: docker push --all-tags "europe-west1-docker.pkg.dev/${{ inputs.GCP_PROJECT_ID }}/dev/${{ inputs.ADDON_NAME }}"
+
+      - name: Terraform Apply
+        run: terraform apply -auto-approve -var addon-name=${{ inputs.ADDON_NAME }} -var addon-version=1.0.${GITHUB_RUN_NUMBER}
   

@@ -1,4 +1,4 @@
-name: Publish Atlassian AddOn
+name: Publish Atlassian AddOn - DEPRECATED
 
 on:
   workflow_call:
