@@ -34,8 +34,8 @@ jobs:
           service_account_key: ${{ secrets.GCP_SA_KEY }}
           export_default_credentials: true
           
-      - name: Delete old images
-        run: gcloud artifacts docker images delete europe-west1-docker.pkg.dev/rb-net/dev/secure-content
+      - name: Cleanup DEV Docker Repo
+        run: gcloud -q artifacts docker images delete europe-west1-docker.pkg.dev/${{ inputs.GCP_PROJECT_ID }}/dev/${{ inputs.ADDON_NAME }}
 
       - name: Docker Auth GCloud
         run: gcloud auth configure-docker europe-west1-docker.pkg.dev
