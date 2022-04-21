@@ -33,10 +33,6 @@ jobs:
           project_id: ${{ inputs.GCP_PROJECT_ID }}
           service_account_key: ${{ secrets.GCP_SA_KEY }}
           export_default_credentials: true
-          
-      - name: Cleanup DEV Docker Repo
-        run: gcloud -q artifacts docker images delete europe-west1-docker.pkg.dev/${{ inputs.GCP_PROJECT_ID }}/dev/${{ inputs.ADDON_NAME }}
-        continue-on-error: true
 
       - name: Docker Auth GCloud
         run: gcloud auth configure-docker europe-west1-docker.pkg.dev
@@ -45,6 +41,7 @@ jobs:
         run: |-
           docker build \
             -t "europe-west1-docker.pkg.dev/${{ inputs.GCP_PROJECT_ID }}/dev/${{ inputs.ADDON_NAME }}:latest" \
+            -t "europe-west1-docker.pkg.dev/${{ inputs.GCP_PROJECT_ID }}/dev/${{ inputs.ADDON_NAME }}:0.0.${GITHUB_RUN_NUMBER}" \
             --build-arg VERSION=0.0.${GITHUB_RUN_NUMBER} \
             --build-arg GITHUB_SHA=${GITHUB_SHA} \
             --build-arg GITHUB_SHORT_SHA=${GITHUB_SHA:0:8} \
@@ -53,6 +50,10 @@ jobs:
             --build-arg GITHUB_ACTOR=${GITHUB_ACTOR} \
             .
 
-      - name: Push Image to Google Container Registry
-        run: docker push "europe-west1-docker.pkg.dev/${{ inputs.GCP_PROJECT_ID }}/dev/${{ inputs.ADDON_NAME }}:latest"
+      - name: CleanUp DEV Docker Repo
+        run: gcloud -q artifacts docker images delete europe-west1-docker.pkg.dev/${{ inputs.GCP_PROJECT_ID }}/dev/${{ inputs.ADDON_NAME }}
+        continue-on-error: true
+        
+      - name: Push Image to DEV Docker Repo
+        run: docker push --all-tags "europe-west1-docker.pkg.dev/${{ inputs.GCP_PROJECT_ID }}/dev/${{ inputs.ADDON_NAME }}"
   
