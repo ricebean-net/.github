@@ -36,6 +36,7 @@ jobs:
           
       - name: Cleanup DEV Docker Repo
         run: gcloud -q artifacts docker images delete europe-west1-docker.pkg.dev/${{ inputs.GCP_PROJECT_ID }}/dev/${{ inputs.ADDON_NAME }}
+        continue-on-error: true
 
       - name: Docker Auth GCloud
         run: gcloud auth configure-docker europe-west1-docker.pkg.dev
