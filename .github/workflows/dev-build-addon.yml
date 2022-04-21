@@ -1,4 +1,4 @@
-name: DEV Build Atlassian AddOn
+name: Build Atlassian AddOn (DEV)
 
 on:
   workflow_call:
@@ -21,7 +21,7 @@ defaults:
     shell: bash
 
 jobs:
-  dev-build:
+  build:
     runs-on: ubuntu-latest
     steps:
       - name: Check out sources...
