@@ -3,7 +3,7 @@ name: Application DEV-Branch Workflow
 on:
   workflow_call:
     inputs:
-      APPLICATON_NAME:
+      APPLICATION_NAME:
         description: The Applications Name.
         required: true
         type: string
@@ -40,8 +40,8 @@ jobs:
       - name: Build Docker Image
         run: |-
           docker build \
-            -t "europe-west1-docker.pkg.dev/${{ inputs.GCP_PROJECT_ID }}/dev/${{ inputs.APPLICATON_NAME }}:latest" \
-            -t "europe-west1-docker.pkg.dev/${{ inputs.GCP_PROJECT_ID }}/dev/${{ inputs.APPLICATON_NAME }}:0.0.${GITHUB_RUN_NUMBER}" \
+            -t "europe-west1-docker.pkg.dev/${{ inputs.GCP_PROJECT_ID }}/dev/${{ inputs.APPLICATION_NAME }}:latest" \
+            -t "europe-west1-docker.pkg.dev/${{ inputs.GCP_PROJECT_ID }}/dev/${{ inputs.APPLICATION_NAME }}:0.0.${GITHUB_RUN_NUMBER}" \
             --build-arg VERSION=0.0.${GITHUB_RUN_NUMBER} \
             --build-arg GITHUB_SHA=${GITHUB_SHA} \
             --build-arg GITHUB_SHORT_SHA=${GITHUB_SHA:0:8} \
@@ -50,8 +50,8 @@ jobs:
             --build-arg GITHUB_ACTOR=${GITHUB_ACTOR} \
             .
       - name: CleanUp DEV Docker Repo
-        run: gcloud -q artifacts docker images delete europe-west1-docker.pkg.dev/${{ inputs.GCP_PROJECT_ID }}/dev/${{ inputs.APPLICATON_NAME }}
+        run: gcloud -q artifacts docker images delete europe-west1-docker.pkg.dev/${{ inputs.GCP_PROJECT_ID }}/dev/${{ inputs.APPLICATION_NAME }}
         continue-on-error: true
         
       - name: Push Image to DEV Docker Repo
-        run: docker push --all-tags "europe-west1-docker.pkg.dev/${{ inputs.GCP_PROJECT_ID }}/dev/${{ inputs.APPLICATON_NAME }}"
+        run: docker push --all-tags "europe-west1-docker.pkg.dev/${{ inputs.GCP_PROJECT_ID }}/dev/${{ inputs.APPLICATION_NAME }}"
