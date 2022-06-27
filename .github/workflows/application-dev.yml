@@ -1,0 +1,57 @@
+name: Application DEV-Branch Workflow
+
+on:
+  workflow_call:
+    inputs:
+      APPLICATON_NAME:
+        description: The Applications Name.
+        required: true
+        type: string
+      GCP_PROJECT_ID:
+        description: The GCP Project ID.
+        required: false
+        type: string
+        default: 'rb-net'
+    secrets:
+      GCP_SA_KEY:
+        required: true
+
+defaults:
+  run:
+    shell: bash
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out sources...
+        uses: actions/checkout@v2
+
+      - name: Setup GCloud CLI
+        uses: google-github-actions/setup-gcloud@v0
+        with:
+          project_id: ${{ inputs.GCP_PROJECT_ID }}
+          service_account_key: ${{ secrets.GCP_SA_KEY }}
+          export_default_credentials: true
+
+      - name: Docker Auth GCloud
+        run: gcloud auth configure-docker europe-west1-docker.pkg.dev
+
+      - name: Build Docker Image
+        run: |-
+          docker build \
+            -t "europe-west1-docker.pkg.dev/${{ inputs.GCP_PROJECT_ID }}/dev/${{ inputs.APPLICATON_NAME }}:latest" \
+            -t "europe-west1-docker.pkg.dev/${{ inputs.GCP_PROJECT_ID }}/dev/${{ inputs.APPLICATON_NAME }}:0.0.${GITHUB_RUN_NUMBER}" \
+            --build-arg VERSION=0.0.${GITHUB_RUN_NUMBER} \
+            --build-arg GITHUB_SHA=${GITHUB_SHA} \
+            --build-arg GITHUB_SHORT_SHA=${GITHUB_SHA:0:8} \
+            --build-arg GITHUB_RUN_ID=${GITHUB_RUN_ID} \
+            --build-arg GITHUB_RUN_NUMBER=${GITHUB_RUN_NUMBER} \
+            --build-arg GITHUB_ACTOR=${GITHUB_ACTOR} \
+            .
+      - name: CleanUp DEV Docker Repo
+        run: gcloud -q artifacts docker images delete europe-west1-docker.pkg.dev/${{ inputs.GCP_PROJECT_ID }}/dev/${{ inputs.APPLICATON_NAME }}
+        continue-on-error: true
+        
+      - name: Push Image to DEV Docker Repo
+        run: docker push --all-tags "europe-west1-docker.pkg.dev/${{ inputs.GCP_PROJECT_ID }}/dev/${{ inputs.APPLICATON_NAME }}"
