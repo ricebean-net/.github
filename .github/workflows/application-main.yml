@@ -67,4 +67,4 @@ jobs:
         continue-on-error: true
 
       - name: Terraform Apply
-        run: terraform apply -auto-approve -var addon-name=${{ inputs.APPLICATION_NAME }} -var addon-version=1.0.${GITHUB_RUN_NUMBER}
+        run: terraform apply -auto-approve -var application-name=${{ inputs.APPLICATION_NAME }} -var application-version=1.0.${GITHUB_RUN_NUMBER}
